@@ -13,4 +13,6 @@ public class AppDbContext : DbContext, IDataRepository
         await Data.AddAsync(data);
         await SaveChangesAsync();
     }
+    
+
 }
