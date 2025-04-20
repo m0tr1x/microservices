@@ -1,6 +1,0 @@
-@SharpAPI_HostAddress = http://localhost:5207
-
-GET {{SharpAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
