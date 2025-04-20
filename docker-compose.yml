@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   api:  
     build:
@@ -6,10 +8,14 @@ services:
     ports:
       - "5050:80"
     environment:
-      - ConnectionStrings__DefaultConnection=Host=postgres;Database=SharpAPI;Username=mtrx;Password=mtrx
+      - ConnectionStrings__DefaultConnection=Host=dbhost;Database=SharpAPI;Username=mtrx;Password=mtrx
     depends_on:
       - postgres 
     restart: on-failure 
+    networks:
+      app_network:
+        aliases:
+          - api
 
   postgres:
     image: postgres:15 
@@ -21,8 +27,10 @@ services:
         - "5432:5432"
     volumes:
         - postgres_data:/var/lib/postgresql/data
-
- 
+    networks:
+      app_network:
+        aliases:
+          - dbhost
 
   pgadmin:
     image: dpage/pgadmin4
@@ -34,8 +42,38 @@ services:
     depends_on:
       - postgres
     volumes:
-    - pgadmin_data:/var/lib/pgadmin
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      app_network:
+        aliases:
+          - pgadmin
+
+  pyservice:
+    build:
+      context: ./PythonAPI
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://mtrx:mtrx@dbhost:5432/SharpAPI
+    depends_on:
+      - postgres
+    restart: on-failure
+    networks:
+      app_network:
+        aliases:
+          - py
 
 volumes:
-    postgres_data:
-    pgadmin_data:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  app_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+          gateway: 172.25.0.1
+    labels:
+      project: lab8

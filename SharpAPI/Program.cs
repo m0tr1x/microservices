@@ -20,6 +20,8 @@ public class Program
         
         builder.Services.AddScoped<IDataRepository, AppDbContext>();
         builder.Services.AddScoped<DataService>();
+        builder.Services.AddHttpClient<PythonSenderService>();
+
         builder.Services.AddControllers();
         
         var app = builder.Build();

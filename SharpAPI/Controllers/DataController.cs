@@ -9,10 +9,12 @@ namespace SharpAPI.Controllers;
 public class DataController : ControllerBase
 {
     private readonly DataService _dataService;
+    private readonly PythonSenderService _senderService;
 
-    public DataController(DataService dataService)
+    public DataController(DataService dataService, PythonSenderService senderService)
     {
         _dataService = dataService;
+        _senderService = senderService;
     }
 
     [HttpPost]
@@ -21,7 +23,8 @@ public class DataController : ControllerBase
         try
         {
             var result = await _dataService.ProcessDataAsync(dto);
-            return Ok(result);
+            await _senderService.SendDataAsync(dto);
+            return Ok(new { Message = "Данные переданыв в Python-сервис" });
         }
         catch (Exception e)
         {
